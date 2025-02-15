@@ -14,6 +14,7 @@ import (
 
 const createTransaction = `-- name: CreateTransaction :one
 INSERT INTO transactions (
+    TRANSACTION_ID,
     USER_ID,
     VENDOR_ID,
     ORDER_ID,
@@ -26,21 +27,24 @@ INSERT INTO transactions (
     $3,
     $4,
     $5,
-    $6
+    $6,
+    $7
 ) RETURNING transaction_id, user_id, vendor_id, order_id, type, amount, status, created_at, updated_at
 `
 
 type CreateTransactionParams struct {
-	UserID   uuid.UUID      `json:"user_id"`
-	VendorID uuid.UUID      `json:"vendor_id"`
-	OrderID  uuid.UUID      `json:"order_id"`
-	Type     string         `json:"type"`
-	Amount   pgtype.Numeric `json:"amount"`
-	Status   string         `json:"status"`
+	TransactionID uuid.UUID      `json:"transaction_id"`
+	UserID        uuid.UUID      `json:"user_id"`
+	VendorID      uuid.UUID      `json:"vendor_id"`
+	OrderID       uuid.UUID      `json:"order_id"`
+	Type          string         `json:"type"`
+	Amount        pgtype.Numeric `json:"amount"`
+	Status        string         `json:"status"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
 	row := q.db.QueryRow(ctx, createTransaction,
+		arg.TransactionID,
 		arg.UserID,
 		arg.VendorID,
 		arg.OrderID,
@@ -143,7 +147,8 @@ const updateTransactionStatus = `-- name: UpdateTransactionStatus :one
 UPDATE 
     transactions
 SET 
-    STATUS = $2
+    STATUS = $2,
+    UPDATED_AT = NOW()
 WHERE 
     transaction_id = $1 RETURNING transaction_id, user_id, vendor_id, order_id, type, amount, status, created_at, updated_at
 `

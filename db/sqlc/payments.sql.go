@@ -14,6 +14,7 @@ import (
 
 const createPayment = `-- name: CreatePayment :one
 INSERT INTO payments (
+    PAYMENT_ID,
     ORDER_ID,
     USER_ID,
     AMOUNT,
@@ -26,21 +27,24 @@ INSERT INTO payments (
     $3,
     $4,
     $5,
-    $6
+    $6,
+    $7
 ) RETURNING payment_id, order_id, user_id, amount, method, status, transaction_id, created_at, updated_at
 `
 
 type CreatePaymentParams struct {
+	PaymentID     uuid.UUID      `json:"payment_id"`
 	OrderID       uuid.UUID      `json:"order_id"`
 	UserID        uuid.UUID      `json:"user_id"`
 	Amount        pgtype.Numeric `json:"amount"`
 	Method        string         `json:"method"`
 	Status        string         `json:"status"`
-	TransactionID string         `json:"transaction_id"`
+	TransactionID uuid.UUID      `json:"transaction_id"`
 }
 
 func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error) {
 	row := q.db.QueryRow(ctx, createPayment,
+		arg.PaymentID,
 		arg.OrderID,
 		arg.UserID,
 		arg.Amount,
@@ -63,7 +67,7 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (P
 	return i, err
 }
 
-const getPaymentByUserID = `-- name: GetPaymentByUserID :one
+const getPaymentByUserID = `-- name: GetPaymentByUserID :many
 SELECT 
     payment_id, order_id, user_id, amount, method, status, transaction_id, created_at, updated_at 
 FROM 
@@ -72,21 +76,34 @@ WHERE
     user_id = $1
 `
 
-func (q *Queries) GetPaymentByUserID(ctx context.Context, userID uuid.UUID) (Payment, error) {
-	row := q.db.QueryRow(ctx, getPaymentByUserID, userID)
-	var i Payment
-	err := row.Scan(
-		&i.PaymentID,
-		&i.OrderID,
-		&i.UserID,
-		&i.Amount,
-		&i.Method,
-		&i.Status,
-		&i.TransactionID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetPaymentByUserID(ctx context.Context, userID uuid.UUID) ([]Payment, error) {
+	rows, err := q.db.Query(ctx, getPaymentByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Payment{}
+	for rows.Next() {
+		var i Payment
+		if err := rows.Scan(
+			&i.PaymentID,
+			&i.OrderID,
+			&i.UserID,
+			&i.Amount,
+			&i.Method,
+			&i.Status,
+			&i.TransactionID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getPaymentsList = `-- name: GetPaymentsList :many
@@ -130,8 +147,9 @@ const updatePaymentMethod = `-- name: UpdatePaymentMethod :one
 UPDATE 
     payments
 SET 
-    method = $2,
-    transaction_id = $3
+    method = COALESCE($2,method),
+    transaction_id = COALESCE($3,transaction_id),
+    updated_at = NOW()
 WHERE
     payment_id = $1 RETURNING payment_id, order_id, user_id, amount, method, status, transaction_id, created_at, updated_at
 `
@@ -139,7 +157,7 @@ WHERE
 type UpdatePaymentMethodParams struct {
 	PaymentID     uuid.UUID `json:"payment_id"`
 	Method        string    `json:"method"`
-	TransactionID string    `json:"transaction_id"`
+	TransactionID uuid.UUID `json:"transaction_id"`
 }
 
 func (q *Queries) UpdatePaymentMethod(ctx context.Context, arg UpdatePaymentMethodParams) (Payment, error) {

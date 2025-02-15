@@ -16,9 +16,9 @@ type Payment struct {
 	Amount        pgtype.Numeric   `json:"amount"`
 	Method        string           `json:"method"`
 	Status        string           `json:"status"`
-	TransactionID string           `json:"transaction_id"`
-	CreatedAt     pgtype.TIMESTAMP(0) `json:"created_at"`
-	UpdatedAt     pgtype.TIMESTAMP(0) `json:"updated_at"`
+	TransactionID uuid.UUID        `json:"transaction_id"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }
 
 type Transaction struct {
@@ -29,6 +29,6 @@ type Transaction struct {
 	Type          string           `json:"type"`
 	Amount        pgtype.Numeric   `json:"amount"`
 	Status        string           `json:"status"`
-	CreatedAt     pgtype.TIMESTAMP(0) `json:"created_at"`
-	UpdatedAt     pgtype.TIMESTAMP(0) `json:"updated_at"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 }

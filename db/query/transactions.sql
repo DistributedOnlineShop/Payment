@@ -1,5 +1,6 @@
 -- name: CreateTransaction :one
 INSERT INTO transactions (
+    TRANSACTION_ID,
     USER_ID,
     VENDOR_ID,
     ORDER_ID,
@@ -12,7 +13,8 @@ INSERT INTO transactions (
     $3,
     $4,
     $5,
-    $6
+    $6,
+    $7
 ) RETURNING *;
 
 -- name: GetTransactionsList :many
@@ -33,6 +35,7 @@ WHERE
 UPDATE 
     transactions
 SET 
-    STATUS = $2
+    STATUS = $2,
+    UPDATED_AT = NOW()
 WHERE 
     transaction_id = $1 RETURNING *;

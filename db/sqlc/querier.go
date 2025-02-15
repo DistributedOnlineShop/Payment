@@ -13,7 +13,7 @@ import (
 type Querier interface {
 	CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
-	GetPaymentByUserID(ctx context.Context, userID uuid.UUID) (Payment, error)
+	GetPaymentByUserID(ctx context.Context, userID uuid.UUID) ([]Payment, error)
 	GetPaymentsList(ctx context.Context) ([]Payment, error)
 	GetTransactionsByUserId(ctx context.Context, userID uuid.UUID) ([]Transaction, error)
 	GetTransactionsList(ctx context.Context) ([]Transaction, error)

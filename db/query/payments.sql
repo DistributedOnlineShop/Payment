@@ -1,5 +1,6 @@
 -- name: CreatePayment :one
 INSERT INTO payments (
+    PAYMENT_ID,
     ORDER_ID,
     USER_ID,
     AMOUNT,
@@ -12,10 +13,11 @@ INSERT INTO payments (
     $3,
     $4,
     $5,
-    $6
+    $6,
+    $7
 ) RETURNING *;
 
--- name: GetPaymentByUserID :one
+-- name: GetPaymentByUserID :many
 SELECT 
     * 
 FROM 
