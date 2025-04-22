@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func GenerateRandomNumeric() pgtype.Numeric {
+func GenerateNumeric() pgtype.Numeric {
 	intPart := rand.IntN(100000)
 	fracPart := rand.IntN(100)
 	value := int64(intPart) + int64(fracPart)/100.0
@@ -19,7 +19,7 @@ func GenerateRandomNumeric() pgtype.Numeric {
 	}
 }
 
-func GenerateRandomMethod() string {
+func GenerateMethod() string {
 	paymentMethods := []string{
 		"CREDIT_CARD",
 		"DEBIT_CARD",
@@ -36,7 +36,7 @@ func GenerateRandomMethod() string {
 	return paymentMethods[rand.IntN(len(paymentMethods))]
 }
 
-func GenerateRandomPaymentStatus() string {
+func GeneratePaymentStatus() string {
 	paymentStatuses := []string{
 		"PENDING",
 		"PROCESSING",
@@ -50,7 +50,7 @@ func GenerateRandomPaymentStatus() string {
 	return paymentStatuses[rand.IntN(len(paymentStatuses))]
 }
 
-func GenerateRandomTransactionStatus() string {
+func GenerateTransactionStatus() string {
 	Statuses := []string{
 		"PENDING",
 		"COMPLETED",
@@ -64,7 +64,7 @@ func GenerateRandomTransactionStatus() string {
 	return Statuses[rand.IntN(len(Statuses))]
 }
 
-func GenerateRandomTransactionTypes() string {
+func GenerateTransactionTypes() string {
 	Types := []string{
 		"ORDER",
 		"PAYMENT",

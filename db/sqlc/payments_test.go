@@ -15,9 +15,9 @@ func CreateRandomPayment(t *testing.T, userID, orderID, tranID uuid.UUID) Paymen
 		PaymentID:     util.CreateUUID(),
 		OrderID:       orderID,
 		UserID:        userID,
-		Amount:        util.GenerateRandomNumeric(),
-		Method:        util.GenerateRandomMethod(),
-		Status:        util.GenerateRandomPaymentStatus(),
+		Amount:        util.GenerateNumeric(),
+		Method:        util.GenerateMethod(),
+		Status:        util.GeneratePaymentStatus(),
 		TransactionID: tranID,
 	}
 
@@ -80,7 +80,7 @@ func TestUpdatePaymentMethod(t *testing.T) {
 
 	newData := UpdatePaymentMethodParams{
 		PaymentID:     payment.PaymentID,
-		Method:        util.GenerateRandomMethod(),
+		Method:        util.GenerateMethod(),
 		TransactionID: payment.TransactionID,
 	}
 

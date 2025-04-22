@@ -16,9 +16,9 @@ func CreateRandomTransaction(t *testing.T, userId uuid.UUID) Transaction {
 		UserID:        userId,
 		VendorID:      util.CreateUUID(),
 		OrderID:       util.CreateUUID(),
-		Type:          util.GenerateRandomTransactionTypes(),
-		Amount:        util.GenerateRandomNumeric(),
-		Status:        util.GenerateRandomTransactionStatus(),
+		Type:          util.GenerateTransactionTypes(),
+		Amount:        util.GenerateNumeric(),
+		Status:        util.GenerateTransactionStatus(),
 	}
 
 	tran, err := testStore.CreateTransaction(context.Background(), data)
@@ -71,7 +71,7 @@ func TestUpdateTransactionStatus(t *testing.T) {
 
 	newData := UpdateTransactionStatusParams{
 		TransactionID: tran.TransactionID,
-		Status:        util.GenerateRandomTransactionStatus(),
+		Status:        util.GenerateTransactionStatus(),
 	}
 
 	transactions, err := testStore.UpdateTransactionStatus(context.Background(), newData)
